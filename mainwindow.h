@@ -33,14 +33,25 @@ private:
     Ui::MainWindow *ui;
     QTimer timer1;
     int secondsPassed = 0;
-    QSystemTrayIcon* trayIcon;
+    QSystemTrayIcon* SysTrayHandle;
+    QAction *HideApp;
+    QAction* QuitApp;
+    QMenu menu;
+
+    const int DfltReminderInterval = 1800; // in seconds
+
+    void InitSystemTray(QObject *parent);
+    void InitTicker(QTimer* timer);
 
 protected:
-    void closeEvent(QCloseEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;\
+    void OnTrayAppActivated(QSystemTrayIcon::ActivationReason reason);
     // void changeEvent(QEvent *event) override;
 
 private slots:
     void CheckTime();
+    void RestoreWindow();
+    void SureQuit();
 
 };
 #endif // MAINWINDOW_H

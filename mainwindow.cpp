@@ -6,15 +6,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("Water Alarm");
-    connect(&timer1, SIGNAL(timeout()), this, SLOT(CheckTime()));
-    timer1.setSingleShot(false);
-    timer1.start(1000);
-    trayIcon = new QSystemTrayIcon(this);
-    QIcon icon = QApplication::style()->standardIcon(QStyle::SP_ComputerIcon);
-    trayIcon = new QSystemTrayIcon(icon, this);
-    trayIcon->setToolTip("Water Alarm");
-    trayIcon->show();
+    setWindowTitle("AquaTray");
+    InitSystemTray(this);
+    InitTicker(&timer1);
 }
 
 MainWindow::~MainWindow()
@@ -22,20 +16,70 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::InitSystemTray(QObject *parent)
+{
+    QIcon icon = QApplication::style()->standardIcon(QStyle::SP_ComputerIcon);
+    SysTrayHandle = new QSystemTrayIcon(icon, parent);
+
+    HideApp = new QAction(tr("&Show"), parent);
+    connect(HideApp, &QAction::triggered, this, &MainWindow::RestoreWindow);
+    menu.addAction(HideApp);
+    menu.addSeparator();
+
+    QuitApp = new QAction(tr("&Quit"), parent);
+    connect(QuitApp, &QAction::triggered, this, &MainWindow::SureQuit);
+    menu.addAction(QuitApp);
+    SysTrayHandle->setContextMenu(&menu);
+
+    SysTrayHandle->setToolTip("AquaTray");
+    connect(SysTrayHandle, &QSystemTrayIcon::activated, this, &MainWindow::OnTrayAppActivated);
+    SysTrayHandle->show();
+}
+
+void MainWindow::InitTicker(QTimer *timer)
+{
+    connect(timer, SIGNAL(timeout()), this, SLOT(CheckTime()));
+    timer->setSingleShot(false);
+    timer->start(1000);
+}
+
 void MainWindow::CheckTime()
 {
     secondsPassed++;
     ui->lcdTimer->display(secondsPassed);
 
-    if(secondsPassed % 10 == 0)
+    if(secondsPassed % DfltReminderInterval == 0)
     {
-        trayIcon->showMessage("Reminder", "Drink Water", QSystemTrayIcon::Critical, 5000);
+        SysTrayHandle->showMessage("Reminder", "Drink Water", QSystemTrayIcon::Critical, 5000);
+        ui->ToastMessage->setText("Drink Water!");
     }
+    else if (secondsPassed % 10 == 0) // action at every 10s
+    {
+        if(!ui->ToastMessage->text().isEmpty())
+        {
+            ui->ToastMessage->clear();
+        }
+    }
+    else
+    {
+
+    }
+}
+
+void MainWindow::RestoreWindow()
+{
+    this->show();
+}
+
+void MainWindow::SureQuit()
+{
+    this->close();
+    qApp->quit();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (trayIcon->isVisible())
+    if (SysTrayHandle->isVisible())
     {
         this->hide();
         event->ignore();
@@ -44,14 +88,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-// void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
-// {
-//     if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
-//         if (isVisible()) {
-//             this->hide();
-//         } else {
-//             this->show();
-//             this->activateWindow(); // Bring the window to the front
-//         }
-//     }
-// }
+void MainWindow::OnTrayAppActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
+        if (isVisible()) {
+            this->hide();
+        } else {
+            this->show();
+            this->activateWindow();
+        }
+    }
+}
