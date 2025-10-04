@@ -17,6 +17,36 @@ Whether you’re coding, designing, or binge-watching your favorite series, Aqua
 ### Why AquaTray?
 Long hours at the computer can make hydration easy to forget. AquaTray makes it effortless to stay on top of your water intake — keeping you refreshed, focused, and productive.  
 
+# If you are using focus mode or DND on Windows (Tested on Windows 11)
+## Windows 11: Priority Notifications & Autostart
+
+### 1. Add AquaTray to Start Menu
+To enable priority notifications, AquaTray must be registered as a Start menu app:
+
+1. Open File Explorer.  
+2. Navigate to: %APPDATA%\Microsoft\Windows\Start Menu\Programs
+3. Right-click → **New → Shortcut**.  
+4. Browse to your `AquaTray.exe` executable.  
+5. Name the shortcut `AquaTray` and finish creating it.  
+
+---
+
+### 2. Launch AquaTray
+- Run the application at least once. Windows will now recognize it as a notification-capable app.
+
+---
+
+### 3. Enable Priority Notifications
+1. Press `Win + I` → **System → Notifications**  
+2. Scroll to **Set Priority Notifications**.  
+3. Find `AquaTray` in the list and toggle it **On**.
+
+---
+
+### 4. Optional: Autostart AquaTray
+1. Copy the Start menu shortcut created in Step 1 into the **Startup folder**: %APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
+2. AquaTray will now launch automatically at login, keeping notifications active.
+
 ### License
 GPL-3.0 license 
 
